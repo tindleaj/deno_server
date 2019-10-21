@@ -1,6 +1,7 @@
 import { serve, Response } from "https://deno.land/std/http/server.ts";
 import { Router } from "./router.ts";
-import { testHandler } from "./route_handlers.ts";
+import { testHandler } from "./handlers.ts";
+import { serveFile } from "./file_server.ts"
 
 const defaultHeaders = new Headers({ "Content-Type": "text/plain" });
 
@@ -25,6 +26,7 @@ export class AppServer {
 
     for await (const request of this.server) {
       let resolved = this.router.resolve(this, request);
+
       if (resolved) {
         resolved
           .catch(error => {
@@ -41,9 +43,14 @@ export class AppServer {
             request.respond(response);
           });
       } else {
-        request.respond({
-          body: new TextEncoder().encode(`No resolver found for ${request.url}`)
-        });
+        serveFile(request, './index.html')
+          .catch(error => {
+            if (error.status !== null) return error;
+            return { body: String(error), status: 500 };
+          })
+          .then(file => {
+            request.respond(file);
+          })
       }
     }
   }

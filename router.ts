@@ -9,6 +9,7 @@ export class Router {
     let path = request.url
 
     for (let { method, url, handler } of this.routes) {
+      // TODO this matching logic seems a bit loose
       let match = url.match(path)
 
       if (!match || request.method !== method) continue;

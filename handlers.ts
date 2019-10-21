@@ -1,5 +1,5 @@
-export async function testHandler(context, path, request) => {
-  let body = { data: "success" }
+export async function testHandler(context, path, request) {
+  let body = { data: "success" };
 
   return { 
     headers: new Headers({ "Content-Type": "application/json" }),
