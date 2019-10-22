@@ -43,14 +43,35 @@ export class AppServer {
             request.respond(response);
           });
       } else {
-        serveFile(request, './index.html')
-          .catch(error => {
-            if (error.status !== null) return error;
-            return { body: String(error), status: 500 };
-          })
-          .then(file => {
-            request.respond(file);
-          })
+        let filePath = `.${request.url}`;
+        let fileInfo
+
+        try {
+          // MUY HACKY
+          fileInfo = await Deno.stat(filePath);
+        } catch(err) {
+          console.error(err)
+        }
+
+        if (fileInfo && fileInfo.isFile()) {
+          serveFile(request, filePath)
+            .catch(error => {
+              if (error.status !== null) return error;
+              return { body: String(error), status: 500 };
+            })
+            .then(file => {
+              request.respond(file);
+            })
+        } else {
+          serveFile(request, './index.html')
+            .catch(error => {
+              if (error.status !== null) return error;
+              return { body: String(error), status: 500 };
+            })
+            .then(file => {
+              request.respond(file);
+            })
+        }
       }
     }
   }

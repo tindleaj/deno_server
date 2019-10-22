@@ -6,14 +6,15 @@ export class Router {
   }
 
   resolve(context, request) {
-    let path = request.url
+    let requestUrl = request.url
 
     for (let { method, url, handler } of this.routes) {
-      // TODO this matching logic seems a bit loose
-      let match = url.match(path)
+      // TODO this matching logic seems a bit inadequate
+      let re = new RegExp(url)
+      let match = re.exec(requestUrl)
 
       if (!match || request.method !== method) continue;
-      return handler(context, path, request)
+      return handler(context, requestUrl, request)
     }
     return null
   }
